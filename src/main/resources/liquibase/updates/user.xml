@@ -1,0 +1,215 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd"
+    logicalFilePath="./src/main/resources/liquibase/updates/user.xml">
+
+    <changeSet id="20200606-0800" author="rowanpi">
+        <createTable tableName="User">
+            <column name="id" type="BIGINT(20)" autoIncrement="true">
+                <constraints primaryKey="true" />
+            </column>
+            <column name="deleted" type="TINYINT(1)" defaultValue="0">
+                <constraints nullable="false" />
+            </column>
+            <column name="enabled" type="TINYINT(1)" defaultValue="1">
+                <constraints nullable="false" />
+            </column>
+            <column name="created" defaultValueComputed="CURRENT_TIMESTAMP" type="TIMESTAMP"/>
+            <column name="modified" defaultValueComputed="CURRENT_TIMESTAMP" type="TIMESTAMP"/>
+            <column name="email" type="varchar(320)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="username" type="varchar(320)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+          <column name="password" type="text"/>
+        </createTable>
+        <sql dbms="mysql">
+            ALTER TABLE User CHANGE modified modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+        </sql>
+        <addDefaultValue tableName="User" columnName="deleted" defaultValueBoolean="false"/>
+        <addDefaultValue tableName="User" columnName="enabled" defaultValueBoolean="true"/>
+
+    </changeSet>
+
+    <changeSet id="20200608-2300" author="rowanpi">
+        <createTable tableName="Role">
+            <column name="id" type="BIGINT(20)" autoIncrement="true">
+                <constraints primaryKey="true" />
+            </column>
+            <column name="name" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created" defaultValueComputed="CURRENT_TIMESTAMP" type="TIMESTAMP"/>
+            <column name="modified" defaultValueComputed="CURRENT_TIMESTAMP" type="TIMESTAMP"/>
+            <column name="deleted" type="TINYINT(1)" defaultValue="0">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+        <sql dbms="mysql">
+            ALTER TABLE Role CHANGE modified modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+        </sql>
+        <addDefaultValue tableName="Role" columnName="deleted" defaultValueBoolean="false"/>
+
+        <createTable tableName="Privilege">
+            <column name="id" type="BIGINT(20)" autoIncrement="true">
+                <constraints primaryKey="true" />
+            </column>
+            <column name="name" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created" defaultValueComputed="CURRENT_TIMESTAMP" type="TIMESTAMP"/>
+            <column name="modified" defaultValueComputed="CURRENT_TIMESTAMP" type="TIMESTAMP"/>
+            <column name="deleted" type="TINYINT(1)" defaultValue="0">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+        <sql dbms="mysql">
+            ALTER TABLE Privilege CHANGE modified modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+        </sql>
+        <addDefaultValue tableName="Privilege" columnName="deleted" defaultValueBoolean="false"/>
+
+        <createTable tableName="UserRole">
+            <column name="id" type="BIGINT(20)" autoIncrement="true">
+                <constraints primaryKey="true" />
+            </column>
+            <column name="user" type="BIGINT(20)">
+                <constraints nullable="false" foreignKeyName="fk_UserForRole"
+                             references="User(id)"  deleteCascade="true"/>
+            </column>
+            <column name="role" type="BIGINT(20)">
+                <constraints nullable="true" foreignKeyName="fk_RoleForUser"
+                             references="Role(id)"  deleteCascade="true"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint tableName="UserRole"
+                             columnNames="user, role"
+                             constraintName="UIX_USERROLE"/>
+        <createTable tableName="RolePrivilege">
+            <column name="id" type="BIGINT(20)" autoIncrement="true">
+                <constraints primaryKey="true" />
+            </column>
+            <column name="role" type="BIGINT(20)">
+                <constraints nullable="false" foreignKeyName="fk_RoleForPrivilege"
+                             references="Role(id)" deleteCascade="true"/>
+            </column>
+            <column name="privilege" type="BIGINT(20)">
+                <constraints nullable="true" foreignKeyName="fk_PrivilegeForRole"
+                             references="Privilege(id)" deleteCascade="true" />
+            </column>
+        </createTable>
+        <addUniqueConstraint tableName="RolePrivilege"
+                             columnNames="role, privilege"
+                             constraintName="UIX_ROLEPRIVILEGE"/>
+
+    </changeSet>
+    <changeSet id="20200613-1000" author="rowanpi">
+        <insert tableName="User">
+            <column name="username" value="admin"/>
+            <column name="email" value="admin@churchpeople.org"/>
+            <column name="password" value="$2a$10$3zHzb.Npv1hfZbLEU5qsdOIATbAmTDmlLZ/lyThjf/zZWkKaCuFRy"/>
+        </insert>
+        <insert tableName="Privilege">
+            <column name="name" value="ViewPeople"/>
+        </insert>
+        <insert tableName="Privilege">
+            <column name="name" value="EditPeople"/>
+        </insert>
+        <insert tableName="Privilege">
+            <column name="name" value="AddPeople"/>
+        </insert>
+        <insert tableName="Privilege">
+            <column name="name" value="ViewUser"/>
+        </insert>
+        <insert tableName="Privilege">
+            <column name="name" value="AddUser"/>
+        </insert>
+        <insert tableName="Role">
+            <column name="name" value="ManagePeople"/>
+        </insert>
+        <insert tableName="Role">
+            <column name="name" value="ManagerUsers"/>
+        </insert>
+    </changeSet>
+    <changeSet id="20200613-2300" author="rowanpi">
+        <insert tableName="RolePrivilege">
+            <column name="role" valueComputed="(SELECT id from Role where name='ManagePeople')"/>
+            <column name="privilege" valueComputed="(SELECT id from Privilege where name='ViewPeople')"/>
+        </insert>
+        <insert tableName="RolePrivilege">
+            <column name="role" valueComputed="(SELECT id from Role where name='ManagePeople')"/>
+            <column name="privilege" valueComputed="(SELECT id from Privilege where name='EditPeople')"/>
+        </insert>
+        <insert tableName="RolePrivilege">
+            <column name="role" valueComputed="(SELECT id from Role where name='ManagePeople')"/>
+            <column name="privilege" valueComputed="(SELECT id from Privilege where name='AddPeople')"/>
+        </insert>
+        <insert tableName="RolePrivilege">
+            <column name="role" valueComputed="(SELECT id from Role where name='ManagerUsers')"/>
+            <column name="privilege" valueComputed="(SELECT id from Privilege where name='ViewUser')"/>
+        </insert>
+        <insert tableName="RolePrivilege">
+            <column name="role" valueComputed="(SELECT id from Role where name='ManagerUsers')"/>
+            <column name="privilege" valueComputed="(SELECT id from Privilege where name='AddUser')"/>
+        </insert>
+        <insert tableName="UserRole">
+            <column name="user" valueComputed="(SELECT id from User where username='admin')"/>
+            <column name="role" valueComputed="(SELECT id from Role where name='ManagePeople')"/>
+        </insert>
+        <insert tableName="UserRole">
+            <column name="user" valueComputed="(SELECT id from User where username='admin')"/>
+            <column name="role" valueComputed="(SELECT id from Role where name='ManagerUsers')"/>
+        </insert>
+    </changeSet>
+    <changeSet id="20200627-0945" author="rowanpi">
+        <insert tableName="Privilege">
+            <column name="name" value="ViewRole"/>
+        </insert>
+        <insert tableName="Privilege">
+            <column name="name" value="EditRole"/>
+        </insert>
+        <insert tableName="Privilege">
+            <column name="name" value="AddRole"/>
+        </insert>
+        <insert tableName="Role">
+            <column name="name" value="ManageRoles"/>
+        </insert>
+        <insert tableName="RolePrivilege">
+            <column name="role" valueComputed="(SELECT id from Role where name='ManageRoles')"/>
+            <column name="privilege" valueComputed="(SELECT id from Privilege where name='AddRole')"/>
+        </insert>
+        <insert tableName="RolePrivilege">
+            <column name="role" valueComputed="(SELECT id from Role where name='ManageRoles')"/>
+            <column name="privilege" valueComputed="(SELECT id from Privilege where name='EditRole')"/>
+        </insert>
+        <insert tableName="RolePrivilege">
+            <column name="role" valueComputed="(SELECT id from Role where name='ManageRoles')"/>
+            <column name="privilege" valueComputed="(SELECT id from Privilege where name='ViewRole')"/>
+        </insert>
+        <insert tableName="UserRole">
+            <column name="user" valueComputed="(SELECT id from User where username='admin')"/>
+            <column name="role" valueComputed="(SELECT id from Role where name='ManageRoles')"/>
+        </insert>
+
+        <update tableName="Role">
+            <column name="name" value="ManageUsers"/>
+            <where>name='ManagerUsers'</where>
+        </update>
+    </changeSet>
+    <changeSet id="20200627-1130" author="rowanpi">
+        <insert tableName="Privilege">
+            <column name="name" value="EditUser"/>
+        </insert>
+        <insert tableName="RolePrivilege">
+            <column name="role" valueComputed="(SELECT id from Role where name='ManageUsers')"/>
+            <column name="privilege" valueComputed="(SELECT id from Privilege where name='EditUser')"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="20200628-2342" author="rowanpi">
+        <addColumn tableName="User">
+            <column name="forcePasswordChange" type="TINYINT(1)" defaultValue="0"/>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>
