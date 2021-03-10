@@ -1,7 +1,7 @@
 
 # church-auth
 **Build Status:**
-[![Build Status](https://travis-ci.com/church-source/church-auth.svg?branch=main)](https://travis-ci.com/church-source/church-auth)
+[![Build Status](https://www.travis-ci.com/church-source/church-auth.svg?branch=main)](https://travis-ci.com/church-source/church-auth)
 **Code Coverage Status:**
 [![codecov](https://codecov.io/gh/church-source/church-auth/branch/main/graph/badge.svg)](https://codecov.io/gh/church-source/church-auth)
 
