@@ -9,6 +9,6 @@ EXPOSE 8080
 
 RUN mkdir /app
 
-COPY --from=build /home/gradle/src/build/libs/*.jar /app/church-people.jar
+COPY --from=build /home/gradle/src/build/libs/*.jar /app/church-auth.jar
 
-ENTRYPOINT ["java", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseCGroupMemoryLimitForHeap", "-Djava.security.egd=file:/dev/./urandom","-jar","/app/church-people.jar"]
+ENTRYPOINT ["java", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseCGroupMemoryLimitForHeap", "-Djava.security.egd=file:/dev/./urandom","-jar","/app/church-auth.jar"]
