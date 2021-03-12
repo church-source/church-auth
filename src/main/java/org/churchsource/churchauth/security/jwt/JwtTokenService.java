@@ -77,11 +77,17 @@ public class JwtTokenService implements Serializable {
   public String generateToken(UserDetails userDetails) {
     Map<String, Object> claims = new HashMap<>();
     Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
+    String privs = "";
     if(authorities != null) {
       for(GrantedAuthority authority : authorities) {
-        claims.put(authority.getAuthority(), true);
+          if(!"".equals(privs))
+              privs+= ",";
+          privs+= authority.getAuthority();
       }
     }
+
+    claims.put("privileges", privs);
+
     return doGenerateToken(claims, userDetails.getUsername());
   }
 
