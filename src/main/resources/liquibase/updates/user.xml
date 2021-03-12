@@ -212,4 +212,40 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="20210312-1000" author="rowanpi">
+        <insert tableName="Privilege">
+            <column name="name" value="ViewSongs"/>
+        </insert>
+        <insert tableName="Privilege">
+            <column name="name" value="EditSongs"/>
+        </insert>
+        <insert tableName="Privilege">
+            <column name="name" value="AddSongs"/>
+        </insert>
+        <insert tableName="Role">
+            <column name="name" value="ManageSongs"/>
+        </insert>
+    </changeSet>
+
+
+    <changeSet id="20210312-1001" author="rowanpi">
+
+        <insert tableName="RolePrivilege">
+            <column name="role" valueComputed="(SELECT id from Role where name='ManageSongs')"/>
+            <column name="privilege" valueComputed="(SELECT id from Privilege where name='AddSongs')"/>
+        </insert>
+        <insert tableName="RolePrivilege">
+            <column name="role" valueComputed="(SELECT id from Role where name='ManageSongs')"/>
+            <column name="privilege" valueComputed="(SELECT id from Privilege where name='EditSongs')"/>
+        </insert>
+        <insert tableName="RolePrivilege">
+            <column name="role" valueComputed="(SELECT id from Role where name='ManageSongs')"/>
+            <column name="privilege" valueComputed="(SELECT id from Privilege where name='ViewSongs')"/>
+        </insert>
+        <insert tableName="UserRole">
+            <column name="user" valueComputed="(SELECT id from User where username='admin')"/>
+            <column name="role" valueComputed="(SELECT id from Role where name='ManageSongs')"/>
+        </insert>
+    </changeSet>
+
 </databaseChangeLog>
