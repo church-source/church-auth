@@ -24,6 +24,8 @@ public class JwtTokenService implements Serializable {
   private static final long serialVersionUID = -3301605591108950415L;
   public static final String JWT_TOKEN_REASON = "reason";
   public static final String JWT_TOKEN_REASON_PASSWORD_CHANGE = "passwordChange";
+  public static final String JWT_TOKEN_PRIVILEGES = "privileges";
+
   private Clock clock = DefaultClock.INSTANCE;
 
   @Value("${jwt.signing.key.secret}")
@@ -86,7 +88,7 @@ public class JwtTokenService implements Serializable {
       }
     }
 
-    claims.put("privileges", privs);
+    claims.put(JWT_TOKEN_PRIVILEGES, privs);
 
     return doGenerateToken(claims, userDetails.getUsername());
   }
