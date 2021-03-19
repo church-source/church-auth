@@ -127,14 +127,14 @@ public class JwtTokenService implements Serializable {
     claims.setIssuedAt(createdDate);
     claims.setExpiration(expirationDate);
 
-    return Jwts.builder().setClaims(claims).signWith(SignatureAlgorithm.HS512, Base64.getEncoder().encode(secret.getBytes())).compact();
+    return Jwts.builder().setClaims(claims).signWith(SignatureAlgorithm.HS512, secret.getBytes()).compact();
   }
 
   public Boolean validateToken(String token, UserDetails userDetails) {
     CPUserDetails user = (CPUserDetails) userDetails;
     try {
         final String username = getUsernameFromToken(token);
-        return (username.equals(user.getUsername()) && !isTokenExpired(token));
+        return (username.equals(user.getUsername()) || username.equals(user.getEmail()) && !isTokenExpired(token));
     } catch (ExpiredJwtException e) {
         return false;
     }

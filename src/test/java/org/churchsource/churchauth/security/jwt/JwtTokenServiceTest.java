@@ -43,7 +43,7 @@ public class JwtTokenServiceTest {
         final Date expirationDate = java.sql.Date.valueOf(LocalDate.now().plusDays(10));
         Map<String, Object> claims = new HashMap<String, Object>();
         String token =  Jwts.builder().setClaims(claims).setSubject("subject").setIssuedAt(createdDate)
-                .setExpiration(expirationDate).signWith(SignatureAlgorithm.HS512, secret).compact();
+                .setExpiration(expirationDate).signWith(SignatureAlgorithm.HS512, secret.getBytes()).compact();
         Date d = jwtTokenService.getExpirationDateFromToken(token);
         assertThat(d, is(expirationDate));
     }
@@ -54,7 +54,7 @@ public class JwtTokenServiceTest {
         final Date expirationDate = java.sql.Date.valueOf(LocalDate.now().minusDays(1));
         Map<String, Object> claims = new HashMap<String, Object>();
         String token =  Jwts.builder().setClaims(claims).setSubject("subject").setIssuedAt(createdDate)
-                .setExpiration(expirationDate).signWith(SignatureAlgorithm.HS512, secret).compact();
+                .setExpiration(expirationDate).signWith(SignatureAlgorithm.HS512, secret.getBytes()).compact();
         jwtTokenService.getExpirationDateFromToken(token);
     }
 
@@ -65,7 +65,7 @@ public class JwtTokenServiceTest {
         Map<String, Object> claims = new HashMap<String, Object>();
         String username = "username";
         String token =  Jwts.builder().setClaims(claims).setSubject(username).setIssuedAt(createdDate)
-                .setExpiration(expirationDate).signWith(SignatureAlgorithm.HS512, secret).compact();
+                .setExpiration(expirationDate).signWith(SignatureAlgorithm.HS512, secret.getBytes()).compact();
         String name = jwtTokenService.getUsernameFromToken(token);
         assertThat(name, is(username));
     }
@@ -78,7 +78,7 @@ public class JwtTokenServiceTest {
         final Date expirationDate = java.sql.Date.valueOf(LocalDate.now().plusDays(10));
         Map<String, Object> claims = new HashMap<String, Object>();
         String token =  Jwts.builder().setClaims(claims).setSubject("subject").setIssuedAt(date)
-                .setExpiration(expirationDate).setIssuedAt(date).signWith(SignatureAlgorithm.HS512, secret).compact();
+                .setExpiration(expirationDate).setIssuedAt(date).signWith(SignatureAlgorithm.HS512, secret.getBytes()).compact();
         Date d = jwtTokenService.getIssuedAtDateFromToken(token);
         assertThat(d, is(date));
     }
@@ -90,7 +90,7 @@ public class JwtTokenServiceTest {
         Map<String, Object> claims = new HashMap<String, Object>();
         claims.put(JwtTokenService.JWT_TOKEN_REASON, JwtTokenService.JWT_TOKEN_REASON_PASSWORD_CHANGE);
         String token =  Jwts.builder().setClaims(claims).setSubject("subject").setIssuedAt(date)
-                .setExpiration(expirationDate).setIssuedAt(date).signWith(SignatureAlgorithm.HS512, secret).compact();
+                .setExpiration(expirationDate).setIssuedAt(date).signWith(SignatureAlgorithm.HS512, secret.getBytes()).compact();
         String reason = jwtTokenService.getReasonFromToken(token);
         assertThat(reason, is(JwtTokenService.JWT_TOKEN_REASON_PASSWORD_CHANGE));
     }
@@ -101,7 +101,7 @@ public class JwtTokenServiceTest {
         final Date expirationDate = java.sql.Date.valueOf(LocalDate.now().minusDays(1));
         Map<String, Object> claims = new HashMap<String, Object>();
         String token =  Jwts.builder().setClaims(claims).setSubject("subject").setIssuedAt(createdDate)
-                .setExpiration(expirationDate).signWith(SignatureAlgorithm.HS512, secret).compact();
+                .setExpiration(expirationDate).signWith(SignatureAlgorithm.HS512, secret.getBytes()).compact();
         Boolean isTokenExpired = jwtTokenService.isTokenExpired(token);
         assertThat(isTokenExpired, is(true));
     }
@@ -112,7 +112,7 @@ public class JwtTokenServiceTest {
         final Date expirationDate = java.sql.Date.valueOf(LocalDate.now().plusDays(1));
         Map<String, Object> claims = new HashMap<String, Object>();
         String token =  Jwts.builder().setClaims(claims).setSubject("subject").setIssuedAt(createdDate)
-                .setExpiration(expirationDate).signWith(SignatureAlgorithm.HS512, secret).compact();
+                .setExpiration(expirationDate).signWith(SignatureAlgorithm.HS512, secret.getBytes()).compact();
         Boolean isTokenExpired = jwtTokenService.isTokenExpired(token);
         assertThat(isTokenExpired, is(false));
     }
@@ -123,7 +123,7 @@ public class JwtTokenServiceTest {
         String username = "username";
         CPUserDetails userDetails = aCPUserDetails().username(username).build();
         String generatedToken = jwtTokenService.generateToken(userDetails);
-        String tokenUserName = (String)Jwts.parser().setSigningKey(secret).parseClaimsJws(generatedToken).getBody().getSubject();
+        String tokenUserName = (String)Jwts.parser().setSigningKey(secret.getBytes()).parseClaimsJws(generatedToken).getBody().getSubject();
         assertThat(tokenUserName, is(username));
     }
 
@@ -131,8 +131,8 @@ public class JwtTokenServiceTest {
     public void testGenerateForceChangePasswordToken_shouldGenerateTokenWithCorrectReason() {
         String username = "username";
         String generatedToken = jwtTokenService.generateForceChangePasswordToken(username);
-        String tokenUserName = (String)Jwts.parser().setSigningKey(secret).parseClaimsJws(generatedToken).getBody().getSubject();
-        String reason = (String)Jwts.parser().setSigningKey(secret).parseClaimsJws(generatedToken).getBody().get(JwtTokenService.JWT_TOKEN_REASON);
+        String tokenUserName = (String)Jwts.parser().setSigningKey(secret.getBytes()).parseClaimsJws(generatedToken).getBody().getSubject();
+        String reason = (String)Jwts.parser().setSigningKey(secret.getBytes()).parseClaimsJws(generatedToken).getBody().get(JwtTokenService.JWT_TOKEN_REASON);
         assertThat(tokenUserName, is(username));
         assertThat(reason, is(JwtTokenService.JWT_TOKEN_REASON_PASSWORD_CHANGE));
     }
@@ -143,7 +143,7 @@ public class JwtTokenServiceTest {
         final Date expirationDate = java.sql.Date.valueOf(LocalDate.now().plusDays(1));
         Map<String, Object> claims = new HashMap<String, Object>();
         String token =  Jwts.builder().setClaims(claims).setSubject("subject").setIssuedAt(createdDate)
-                .setExpiration(expirationDate).signWith(SignatureAlgorithm.HS512, secret).compact();
+                .setExpiration(expirationDate).signWith(SignatureAlgorithm.HS512, secret.getBytes()).compact();
         Boolean canTokenBeRefreshed = jwtTokenService.canTokenBeRefreshed(token);
         assertThat(canTokenBeRefreshed, is(true));
     }
@@ -154,7 +154,7 @@ public class JwtTokenServiceTest {
         final Date expirationDate = java.sql.Date.valueOf(LocalDate.now().minusDays(1));
         Map<String, Object> claims = new HashMap<String, Object>();
         String token =  Jwts.builder().setClaims(claims).setSubject("subject").setIssuedAt(createdDate)
-                .setExpiration(expirationDate).signWith(SignatureAlgorithm.HS512, secret).compact();
+                .setExpiration(expirationDate).signWith(SignatureAlgorithm.HS512, secret.getBytes()).compact();
         Boolean canTokenBeRefreshed = jwtTokenService.canTokenBeRefreshed(token);
         assertThat(canTokenBeRefreshed, is(false));
     }
@@ -167,7 +167,7 @@ public class JwtTokenServiceTest {
         CPUserDetails userDetails = aCPUserDetails().username(username).build();
         Map<String, Object> claims = new HashMap<String, Object>();
         String token =  Jwts.builder().setClaims(claims).setSubject(username).setIssuedAt(createdDate)
-                .setExpiration(expirationDate).signWith(SignatureAlgorithm.HS512, secret).compact();
+                .setExpiration(expirationDate).signWith(SignatureAlgorithm.HS512, secret.getBytes()).compact();
         Boolean isTokenValid = jwtTokenService.validateToken(token,userDetails);
         assertThat(isTokenValid, is(true));
     }
@@ -180,7 +180,7 @@ public class JwtTokenServiceTest {
         CPUserDetails userDetails = aCPUserDetails().email(email).build();
         Map<String, Object> claims = new HashMap<String, Object>();
         String token =  Jwts.builder().setClaims(claims).setSubject(email).setIssuedAt(createdDate)
-                .setExpiration(expirationDate).signWith(SignatureAlgorithm.HS512, secret).compact();
+                .setExpiration(expirationDate).signWith(SignatureAlgorithm.HS512, secret.getBytes()).compact();
         Boolean isTokenValid = jwtTokenService.validateToken(token, userDetails);
         assertThat(isTokenValid, is(true));
     }
@@ -193,7 +193,7 @@ public class JwtTokenServiceTest {
         CPUserDetails userDetails = aCPUserDetails().username(username).build();
         Map<String, Object> claims = new HashMap<String, Object>();
         String token =  Jwts.builder().setClaims(claims).setSubject(username).setIssuedAt(createdDate)
-                .setExpiration(expirationDate).signWith(SignatureAlgorithm.HS512, secret).compact();
+                .setExpiration(expirationDate).signWith(SignatureAlgorithm.HS512, secret.getBytes()).compact();
         Boolean isTokenValid = jwtTokenService.validateToken(token,userDetails);
         assertThat(isTokenValid, is(false));
     }
@@ -206,7 +206,7 @@ public class JwtTokenServiceTest {
         CPUserDetails userDetails = aCPUserDetails().email(email).build();
         Map<String, Object> claims = new HashMap<String, Object>();
         String token =  Jwts.builder().setClaims(claims).setSubject(email).setIssuedAt(createdDate)
-                .setExpiration(expirationDate).signWith(SignatureAlgorithm.HS512, secret).compact();
+                .setExpiration(expirationDate).signWith(SignatureAlgorithm.HS512, secret.getBytes()).compact();
         Boolean isTokenValid = jwtTokenService.validateToken(token, userDetails);
         assertThat(isTokenValid, is(false));
     }
@@ -218,10 +218,10 @@ public class JwtTokenServiceTest {
         final Date expirationDate = java.sql.Date.valueOf(LocalDate.now().plusDays(1));
         Map<String, Object> claims = new HashMap<String, Object>();
         String token =  Jwts.builder().setClaims(claims).setSubject(username).setIssuedAt(createdDate)
-                .setExpiration(expirationDate).signWith(SignatureAlgorithm.HS512, secret).compact();
+                .setExpiration(expirationDate).signWith(SignatureAlgorithm.HS512, secret.getBytes()).compact();
         String newToken = jwtTokenService.refreshToken(token);
         assertThat(newToken, is(not(equalTo(null))));
-        String tokenUserName = (String)Jwts.parser().setSigningKey(secret).parseClaimsJws(newToken).getBody().getSubject();
+        String tokenUserName = (String)Jwts.parser().setSigningKey(secret.getBytes()).parseClaimsJws(newToken).getBody().getSubject();
         assertThat(tokenUserName, is(username));
         //TODO shouldn't really call another method in the actual code when asserting.
         Date newExpirationDate = jwtTokenService.getExpirationDateFromToken(newToken);
