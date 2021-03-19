@@ -14,6 +14,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import java.util.Base64;
+
 import io.jsonwebtoken.impl.DefaultClock;
 
 @Component
@@ -25,8 +27,11 @@ public class JwtTokenService implements Serializable {
   public static final String JWT_TOKEN_REASON = "reason";
   public static final String JWT_TOKEN_REASON_PASSWORD_CHANGE = "passwordChange";
   public static final String JWT_TOKEN_PRIVILEGES = "privileges";
+  public static final String JWT_TOKEN_AUDIENCE = "audience";
+  public static final String JWT_TOKEN_ISSUER = "issuer";
 
-  private Clock clock = DefaultClock.INSTANCE;
+
+    private Clock clock = DefaultClock.INSTANCE;
 
   @Value("${jwt.signing.key.secret}")
   private String secret;
@@ -50,7 +55,7 @@ public class JwtTokenService implements Serializable {
   }
 
   public String getReasonFromToken(String token) {
-    return (String)Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().get(JWT_TOKEN_REASON);
+    return (String)Jwts.parser().setSigningKey(secret.getBytes()).parseClaimsJws(token).getBody().get(JWT_TOKEN_REASON);
   }
 
   public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
@@ -59,7 +64,7 @@ public class JwtTokenService implements Serializable {
   }
 
   private Claims getAllClaimsFromToken(String token) {
-    return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+    return Jwts.parser().setSigningKey(secret.getBytes()).parseClaimsJws(token).getBody();
   }
 
   public Boolean isTokenExpired(String token) {
@@ -89,7 +94,8 @@ public class JwtTokenService implements Serializable {
     }
 
     claims.put(JWT_TOKEN_PRIVILEGES, privs);
-
+    claims.put(JWT_TOKEN_AUDIENCE, "");
+    claims.put(JWT_TOKEN_ISSUER, "https://mvsongs.co.za");
     return doGenerateToken(claims, userDetails.getUsername());
   }
 
@@ -98,16 +104,15 @@ public class JwtTokenService implements Serializable {
     final Date expirationDate = calculatePasswordChangeExpirationDate(createdDate);
     Map<String, Object> claims = new HashMap<String, Object>();
     claims.put(JWT_TOKEN_REASON, JWT_TOKEN_REASON_PASSWORD_CHANGE);
-    return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(createdDate)
-            .setExpiration(expirationDate).signWith(SignatureAlgorithm.HS512, secret).compact();
+    return Jwts.builder().setClaims(claims).setSubject(subject).setAudience("https://mvsongs.co.za").setIssuer("https://mvsongs.co.za").setIssuedAt(createdDate)
+            .setExpiration(expirationDate).signWith(SignatureAlgorithm.HS512, secret.getBytes()).compact();
   }
 
   private String doGenerateToken(Map<String, Object> claims, String subject) {
     final Date createdDate = clock.now();
     final Date expirationDate = calculateExpirationDate(createdDate);
-
-    return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(createdDate)
-        .setExpiration(expirationDate).signWith(SignatureAlgorithm.HS512, secret).compact();
+    return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(createdDate).setAudience("https://mvsongs.co.za").setIssuer("https://mvsongs.co.za")
+        .setExpiration(expirationDate).signWith(SignatureAlgorithm.HS512, secret.getBytes()).compact();
   }
 
   public Boolean canTokenBeRefreshed(String token) {
@@ -122,14 +127,14 @@ public class JwtTokenService implements Serializable {
     claims.setIssuedAt(createdDate);
     claims.setExpiration(expirationDate);
 
-    return Jwts.builder().setClaims(claims).signWith(SignatureAlgorithm.HS512, secret).compact();
+    return Jwts.builder().setClaims(claims).signWith(SignatureAlgorithm.HS512, Base64.getEncoder().encode(secret.getBytes())).compact();
   }
 
   public Boolean validateToken(String token, UserDetails userDetails) {
     CPUserDetails user = (CPUserDetails) userDetails;
     try {
         final String username = getUsernameFromToken(token);
-        return (username.equals(user.getUsername()) || username.equals(user.getEmail()) && !isTokenExpired(token));
+        return (username.equals(user.getUsername()) && !isTokenExpired(token));
     } catch (ExpiredJwtException e) {
         return false;
     }
