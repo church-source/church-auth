@@ -18,6 +18,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.*;
 
 @NamedQueries({
+        @NamedQuery(name = UserNamedQueryConstants.NAME_GET_ALL_USERS,
+                query = UserNamedQueryConstants.QUERY_GET_ALL_USERS),
         @NamedQuery(name = UserNamedQueryConstants.NAME_FIND_USER_BY_ID,
                 query = UserNamedQueryConstants.QUERY_FIND_USER_BY_ID),
         @NamedQuery(name = UserNamedQueryConstants.NAME_FIND_USER_BY_USERNAME,

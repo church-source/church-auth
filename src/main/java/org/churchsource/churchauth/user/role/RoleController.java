@@ -34,6 +34,7 @@ public class RoleController {
   }
 
   @RequestMapping(method = RequestMethod.POST)
+  @CrossOrigin
   @PreAuthorize("hasAuthority('AddRole')")
   public Role addRole(@RequestBody Role role) {
     //TODO not using a backing form for now

@@ -1,5 +1,7 @@
 package org.churchsource.churchauth.user;
 
+import java.util.List;
+
 import org.churchsource.churchauth.repository.AbstractRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +16,12 @@ public class UserRepository extends AbstractRepository<CPUserDetails> {
     return entityManager.createNamedQuery(UserNamedQueryConstants.NAME_FIND_USER_BY_ID, CPUserDetails.class)
         .setParameter("id", id)
         .getSingleResult();
+  }
+
+  public List<CPUserDetails> getAllUsers() throws NoResultException {
+    return entityManager.createNamedQuery(UserNamedQueryConstants.NAME_GET_ALL_USERS, CPUserDetails.class)
+            .setParameter("includeDeleted", false)
+            .getResultList();
   }
 
   public CPUserDetails findUserByUserName(String username) throws NoResultException {
