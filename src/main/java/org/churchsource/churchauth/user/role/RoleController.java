@@ -40,4 +40,12 @@ public class RoleController {
     //TODO not using a backing form for now
     return roleRepository.save(role);
   }
+
+  @RequestMapping(method = RequestMethod.PUT, path = "/{id}")
+  @CrossOrigin
+  @PreAuthorize("hasAuthority('EditRole')")
+  public Role updateRole(@RequestBody Role form) {
+    //TODO this is terrible, I need to add validation
+    return roleRepository.updateRole(form);
+  }
 }
