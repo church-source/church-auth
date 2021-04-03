@@ -45,6 +45,7 @@ public class JwtAuthenticationRestController {
   private String tokenHeader;
 
   @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
+  @CrossOrigin
   public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtTokenRequest authenticationRequest)
           throws AuthenticationException {
     try {
