@@ -248,4 +248,38 @@
         </insert>
     </changeSet>
 
+    <changeSet id="20210428-0700" author="rowanpi">
+        <insert tableName="Privilege">
+            <column name="name" value="ViewService"/>
+        </insert>
+        <insert tableName="Privilege">
+            <column name="name" value="EditService"/>
+        </insert>
+        <insert tableName="Privilege">
+            <column name="name" value="AddService"/>
+        </insert>
+        <insert tableName="Role">
+            <column name="name" value="ManageServices"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="20210428-0701" author="rowanpi">
+        <insert tableName="RolePrivilege">
+            <column name="role" valueComputed="(SELECT id from Role where name='ManageServices')"/>
+            <column name="privilege" valueComputed="(SELECT id from Privilege where name='AddService')"/>
+        </insert>
+        <insert tableName="RolePrivilege">
+            <column name="role" valueComputed="(SELECT id from Role where name='ManageServices')"/>
+            <column name="privilege" valueComputed="(SELECT id from Privilege where name='EditService')"/>
+        </insert>
+        <insert tableName="RolePrivilege">
+            <column name="role" valueComputed="(SELECT id from Role where name='ManageServices')"/>
+            <column name="privilege" valueComputed="(SELECT id from Privilege where name='ViewService')"/>
+        </insert>
+        <insert tableName="UserRole">
+            <column name="user" valueComputed="(SELECT id from User where username='admin')"/>
+            <column name="role" valueComputed="(SELECT id from Role where name='ManageServices')"/>
+        </insert>
+    </changeSet>
+
 </databaseChangeLog>
