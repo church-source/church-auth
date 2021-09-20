@@ -282,4 +282,58 @@
         </insert>
     </changeSet>
 
+    <changeSet id="20210921-0048" author="rowanpi">
+        <insert tableName="Privilege">
+            <column name="name" value="ViewMusicTeamRole"/>
+        </insert>
+        <insert tableName="Privilege">
+            <column name="name" value="EditMusicTeamRole"/>
+        </insert>
+        <insert tableName="Privilege">
+            <column name="name" value="AddMusicTeamRole"/>
+        </insert>
+        <insert tableName="Role">
+            <column name="name" value="ManageMusicTeam"/>
+        </insert>
+        <insert tableName="Privilege">
+            <column name="name" value="ViewMusicTeamPeople"/>
+        </insert>
+        <insert tableName="Privilege">
+            <column name="name" value="EditMusicTeamPeople"/>
+        </insert>
+        <insert tableName="Privilege">
+            <column name="name" value="AddMusicTeamPeople"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="20210921-0049" author="rowanpi">
+        <insert tableName="RolePrivilege">
+            <column name="role" valueComputed="(SELECT id from Role where name='ManageMusicTeam')"/>
+            <column name="privilege" valueComputed="(SELECT id from Privilege where name='ViewMusicTeamPeople')"/>
+        </insert>
+        <insert tableName="RolePrivilege">
+            <column name="role" valueComputed="(SELECT id from Role where name='ManageMusicTeam')"/>
+            <column name="privilege" valueComputed="(SELECT id from Privilege where name='EditMusicTeamPeople')"/>
+        </insert>
+        <insert tableName="RolePrivilege">
+            <column name="role" valueComputed="(SELECT id from Role where name='ManageMusicTeam')"/>
+            <column name="privilege" valueComputed="(SELECT id from Privilege where name='AddMusicTeamPeople')"/>
+        </insert>
+        <insert tableName="RolePrivilege">
+            <column name="role" valueComputed="(SELECT id from Role where name='ManageMusicTeam')"/>
+            <column name="privilege" valueComputed="(SELECT id from Privilege where name='ViewMusicTeamRole')"/>
+        </insert>
+        <insert tableName="RolePrivilege">
+            <column name="role" valueComputed="(SELECT id from Role where name='ManageMusicTeam')"/>
+            <column name="privilege" valueComputed="(SELECT id from Privilege where name='EditMusicTeamRole')"/>
+        </insert>
+        <insert tableName="RolePrivilege">
+            <column name="role" valueComputed="(SELECT id from Role where name='ManageMusicTeam')"/>
+            <column name="privilege" valueComputed="(SELECT id from Privilege where name='AddMusicTeamRole')"/>
+        </insert>
+        <insert tableName="UserRole">
+            <column name="user" valueComputed="(SELECT id from User where username='admin')"/>
+            <column name="role" valueComputed="(SELECT id from Role where name='ManageMusicTeam')"/>
+        </insert>
+    </changeSet>
 </databaseChangeLog>
